@@ -1,0 +1,71 @@
+For each of the sentence fragments below use your natural language processing algorithm to predict the next word in the sentence.
+
+1. 
+The guy in front of me just bought a pound of bacon, a bouquet, and a case of
+pretzels
+beer  Y
+soda
+cheese
+
+2. 
+You're the reason why I smile everyday. Can you follow me please? It would mean the
+world  Y
+universe
+best
+most
+
+3. 
+Hey sunshine, can you follow me and make me the
+bluest
+smelliest
+saddest
+happiest  Y
+
+4. 
+Very early observations on the Bills game: Offense still struggling but the
+referees  X
+crowd
+players
+defense
+
+5. 
+Go on a romantic date at the
+mall
+grocery
+movies  X
+beach
+
+6. 
+Well I'm pretty sure my granny has some old bagpipes in her garage I'll dust them off and be on my
+horse
+phone
+way  Y
+motorcycle
+
+7. 
+Ohhhhh #PointBreak is on tomorrow. Love that film and haven't seen it in quite some
+thing
+weeks
+time  Y
+years
+
+8. 
+After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little
+fingers  Y
+ears
+toes
+eyes
+
+9. 
+Be grateful for the good times and keep the faith during the
+sad
+bad
+hard  X
+worse
+
+10. 
+If this isn't the cutest thing you've ever seen, then you must be
+asleep
+insane Y
+insensitive
+callous

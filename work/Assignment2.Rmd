@@ -1,0 +1,158 @@
+#Coursera Capstone Project
+#Week 2 Assignment
+###Author: Roman I Ozerov
+
+###Introduction
+The goal of this project is just to display that we have gotten used to working with the data and that we are on track to create your prediction algorithm. We need to:
+
+1. Demonstrate that we have downloaded the data and have successfully loaded it in.
+
+2. Create a basic report of summary statistics about the data sets.
+
+3. Report any interesting findings that we have amassed so far.
+
+4. Get feedback on the plans for creating a prediction algorithm and Shiny app.
+
+
+##Initialization
+```{r}
+library(tm,quietly = TRUE, warn.conflicts = FALSE)
+library(NLP,quietly = TRUE, warn.conflicts = FALSE)
+library(SnowballC,quietly = TRUE, warn.conflicts = FALSE)
+library(ggplot2,quietly = TRUE, warn.conflicts = FALSE)
+library(wordcloud,quietly = TRUE, warn.conflicts = FALSE)
+library(fpc,quietly = TRUE, warn.conflicts = FALSE)
+library(stringi,quietly = TRUE, warn.conflicts = FALSE)
+library(RWeka,quietly = TRUE, warn.conflicts = FALSE)
+```
+
+# Load data
+```{r}
+blogs <- readLines("en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = TRUE)
+NROW(blogs)
+sum(nchar(blogs))
+
+news <- readLines("en_US/en_US.news.txt", encoding = "UTF-8", skipNul = TRUE)
+NROW(news)
+sum(nchar(news))
+
+twits <- readLines("en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = TRUE)
+NROW(twits)
+sum(nchar(twits))
+```
+
+#Get some basic statistics
+```{r}
+WPL=sapply(list(blogs,news,twits),function(x) summary(stri_count_words(x))[c('Min.','Mean','Max.')])
+rownames(WPL)=c('WPL_Min','WPL_Mean','WPL_Max')
+stats=data.frame(
+  Dataset=c("blogs","news","twits"),      
+  t(rbind(
+  sapply(list(blogs,news,twits),stri_stats_general)[c('Lines','Chars'),],
+  Words=sapply(list(blogs,news,twits),stri_stats_latex)['Words',],
+  WPL)
+))
+head(stats)
+```
+
+# Because the data sets are huge we take just a sample of it.
+```{r}
+blogs <- readLines("en_US/en_US.blogs.txt", 1000, encoding = "UTF-8", skipNul = TRUE)
+NROW(blogs)
+sum(nchar(blogs))
+
+news <- readLines("en_US/en_US.news.txt", 1000, encoding = "UTF-8", skipNul = TRUE)
+NROW(news)
+sum(nchar(news))
+
+twits <- readLines("en_US/en_US.twitter.txt", 1000, encoding = "UTF-8", skipNul = TRUE)
+NROW(twits)
+sum(nchar(twits))
+```
+
+#Get basic statistics for subset of data
+```{r}
+WPL=sapply(list(blogs,news,twits),function(x) summary(stri_count_words(x))[c('Min.','Mean','Max.')])
+rownames(WPL)=c('WPL_Min','WPL_Mean','WPL_Max')
+stats=data.frame(
+  Dataset=c("blogs","news","twits"),      
+  t(rbind(
+  sapply(list(blogs,news,twits),stri_stats_general)[c('Lines','Chars'),],
+  Words=sapply(list(blogs,news,twits),stri_stats_latex)['Words',],
+  WPL)
+))
+head(stats)
+```
+We see that average values are similar, which means that our sample is representitive. 
+
+#Create a Data Corpus on sample data
+```{r}
+allfilestmp <- c(blogs,news,twits)
+allfiles <- paste(allfilestmp, collapse = " ")
+docs <- Corpus(VectorSource(allfiles))
+```
+
+#Preprocessing data to remove:
+(Punctuations, Numbers, WhiteSpaces, converting to lower case, Stemming, StopWords)
+```{r}
+docs <- tm_map(docs, removePunctuation) 
+docs <- tm_map(docs, removeNumbers)
+docs <- tm_map(docs, stripWhitespace)
+docs <- tm_map(docs, tolower)
+docs <- tm_map(docs, stemDocument)
+docs <- tm_map(docs, removeWords, stopwords("english"))  
+docs <- tm_map(docs, PlainTextDocument)
+```
+
+#Build document term matrix
+```{r}
+dtm <- DocumentTermMatrix(docs)
+dim(dtm)
+inspect(dtm)
+```
+
+#Let's find some interesting facts in the data
+##Organize terms by their frequency
+```{r}
+freq <- colSums(as.matrix(dtm))   
+length(freq)   
+ord <- order(freq)
+```
+
+##Fine-grained look at term freqency
+```{r}
+dtms <- removeSparseTerms(dtm, 0.1)
+freq <- colSums(as.matrix(dtms))   
+freq <- sort(colSums(as.matrix(dtm)), decreasing=TRUE)   
+head(freq, 14)
+```
+
+##Identify all terms that appear 100 or more times
+```{r}
+findFreqTerms(dtm, lowfreq=100)
+wf <- data.frame(word=names(freq), freq=freq)  
+head(wf)
+```
+
+#Now let's do some nice plotting
+##Plot words that appear at least 50 times.
+```{r}
+p <- ggplot(subset(wf, freq>100), aes(word, freq))    
+p <- p + geom_bar(stat="identity")   
+p <- p + theme(axis.text.x=element_text(angle=45, hjust=1))   
+p 
+```
+
+##Plot words that occur at least 50 times.
+```{r}
+set.seed(123)   
+wordcloud(names(freq), freq, min.freq=50, scale=c(5, .1), colors=brewer.pal(6, "Dark2"))
+```
+
+##Plot the 100 most frequently used words
+```{r}
+set.seed(123)   
+wordcloud(names(freq), freq, max.words=100, rot.per=0.2, colors=brewer.pal(6, "Dark2"))
+```
+
+

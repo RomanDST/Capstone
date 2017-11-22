@@ -1,0 +1,12 @@
+name: Application
+title: Application
+username:
+account: rozerov
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 238383
+bundleId: 1088342
+url: https://rozerov.shinyapps.io/Application/
+when: 1511285476.94265
+asMultiple: FALSE
+asStatic: FALSE
